@@ -1,1 +1,245 @@
 
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JARVIS TV</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: #05070a;
+    color: white;
+    font-family: Arial, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    width: 90%;
+    max-width: 900px;
+    text-align: center;
+}
+
+h1 {
+    font-size: 60px;
+    letter-spacing: 8px;
+    margin-bottom: 10px;
+}
+
+.status {
+    color: #00bfff;
+    font-size: 20px;
+    margin-bottom: 30px;
+}
+
+.clock {
+    font-size: 48px;
+    margin-bottom: 30px;
+}
+
+button {
+    background: #008cff;
+    border: none;
+    color: white;
+    padding: 18px 35px;
+    border-radius: 12px;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #006dcc;
+}
+
+.response {
+    margin-top: 35px;
+    min-height: 80px;
+    font-size: 24px;
+    padding: 20px;
+    border: 1px solid #123b55;
+    border-radius: 15px;
+    background: #080d12;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>JARVIS</h1>
+
+    <div class="status" id="status">
+        Sistema online
+    </div>
+
+    <div class="clock" id="clock">
+        00:00:00
+    </div>
+
+    <button onclick="startListening()">
+        🎙️ FALAR COM JARVIS
+    </button>
+
+    <div class="response" id="response">
+        Olá. Eu sou o Jarvis. Como posso ajudar?
+    </div>
+
+</div>
+
+<script>
+
+function updateClock() {
+    const now = new Date();
+
+    const time = now.toLocaleTimeString('pt-BR');
+
+    document.getElementById("clock").textContent = time;
+}
+
+setInterval(updateClock, 1000);
+updateClock();
+
+
+function speak(text) {
+
+    const speech = new SpeechSynthesisUtterance(text);
+
+    speech.lang = "pt-BR";
+    speech.rate = 1;
+    speech.pitch = 1;
+
+    speechSynthesis.speak(speech);
+}
+
+
+function respond(text) {
+
+    document.getElementById("response").textContent = text;
+
+    speak(text);
+}
+
+
+function startListening() {
+
+    const SpeechRecognition =
+        window.SpeechRecognition ||
+        window.webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+
+        respond("Seu navegador não suporta reconhecimento de voz.");
+
+        return;
+    }
+
+    const recognition = new SpeechRecognition();
+
+    recognition.lang = "pt-BR";
+    recognition.continuous = false;
+    recognition.interimResults = false;
+
+    document.getElementById("status").textContent =
+        "Estou ouvindo...";
+
+    recognition.start();
+
+
+    recognition.onresult = function(event) {
+
+        const command =
+            event.results[0][0].transcript.toLowerCase();
+
+        document.getElementById("status").textContent =
+            "Comando recebido";
+
+        processCommand(command);
+    };
+
+
+    recognition.onerror = function() {
+
+        document.getElementById("status").textContent =
+            "Sistema online";
+
+        respond("Não consegui entender o comando.");
+    };
+
+
+    recognition.onend = function() {
+
+        document.getElementById("status").textContent =
+            "Sistema online";
+    };
+}
+
+
+function processCommand(command) {
+
+    if (command.includes("olá") ||
+        command.includes("oi") ||
+        command.includes("jarvis")) {
+
+        respond("Olá. Estou pronto para ajudar.");
+        return;
+    }
+
+
+    if (command.includes("hora")) {
+
+        const time = new Date().toLocaleTimeString(
+            "pt-BR"
+        );
+
+        respond("Agora são " + time + ".");
+        return;
+    }
+
+
+    if (command.includes("data")) {
+
+        const date = new Date().toLocaleDateString(
+            "pt-BR"
+        );
+
+        respond("Hoje é " + date + ".");
+        return;
+    }
+
+
+    if (command.includes("quem é você")) {
+
+        respond(
+            "Eu sou o Jarvis, seu assistente virtual."
+        );
+
+        return;
+    }
+
+
+    if (command.includes("desligar")) {
+
+        respond("Comando recebido. Até logo.");
+
+        return;
+    }
+
+
+    respond(
+        "Ainda não tenho uma resposta para esse comando."
+    );
+}
+
+</script>
+
+</body>
+  </html>
